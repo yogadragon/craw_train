@@ -13,3 +13,10 @@ total len(200)=2847	len(503)=10898
 step=100	thread=500
 time=353.35220074653625
 total len(200)=2432	len(503)=8703
+step=10	thread=500
+time=28.00001883506775
+total len(200)=1770	len(503)=0
+step=10	thread=100
+time=5.259643077850342
+total len(200)=237	len(503)=0
+ipok=34	iperror=27

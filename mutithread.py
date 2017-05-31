@@ -329,7 +329,7 @@ def craw(step, proxy, urlquery, isproxy):
                 # print(threadname+"@@@@"+str(craw_result.status_code))
         #request.get出错
         except Exception as e:
-            print(e)
+            # print(e)
             log2.write(str(e)+'\n')
             break
             pass
@@ -443,12 +443,15 @@ stableip = mymod.stableIP.StableIP()
 proxies = stableip.getIPs("ips.py")
 
 def callcraw(step, proxy, urlquery_step):
+    global ipcount1,ipcount2
     log4=open("log/iptest.log","a+")
     if stableip.singleTest(proxy,testUrl):
-        craw(step, proxy, urlquery_step, 1)
-        log4.write("ip ok:"+str(proxy))
+        ipcount1=ipcount1+1
+        log4.write("ip ok:"+str(proxy)+'\n')
+        craw(step, proxy, urlquery_step, 1)        
     else:
-        log4.write('ip error:'+str(proxy))
+        ipcount2=ipcount2+1
+        log4.write('ip error:'+str(proxy)+'\n')
     log4.close()
 
 step = 10
@@ -456,11 +459,14 @@ urlquery = list(db.url.find({"status":"no"}).limit(step*len(proxies)))
 for i in range(0, step*len(proxies)):
     db.url.update({"url":urlquery[i]["url"]},{"$set":{"status":"ing"}},upsert=False, multi=False)
 count = 0
-global count11,count22
+global count11,count22,ipcount1,ipcount2
 count11=0
 count22=0
+ipcount2=0
+ipcount1=0
 log3=open("log/crawtesttime.log","a+")
 start_time=time.time()
+
 
 for proxy in proxies:
     count = count + 1
@@ -474,6 +480,7 @@ t1.join()
 log3.write('step='+str(step)+'\t'+'thread='+str(len(proxies))+'\n')
 log3.write('time='+str(time.time()-start_time)+'\n')
 log3.write('total len(200)='+str(count11)+'\t'+'len(503)='+str(count22)+'\n')
+log3.write('ipok='+str(ipcount1)+'\t'+'iperror='+str(ipcount2)+'\n')
 log3.close()
 
 
@@ -489,6 +496,7 @@ log3.close()
 
 ''' 
 #初始化数据库
+'''
 for i in range(1,261):
 	print(i)
 	start = (i-1)*10
