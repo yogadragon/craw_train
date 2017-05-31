@@ -10,3 +10,6 @@ total len(200)=441	len(503)=1559
 step=100	thread=200
 time=374.02626180648804
 total len(200)=2847	len(503)=10898
+step=100	thread=500
+time=353.35220074653625
+total len(200)=2432	len(503)=8703

@@ -362,7 +362,7 @@ def craw(step, proxy, urlquery, isproxy):
 
 
 #测试区————测试自定义包的各种函数
-#'''
+'''
 testUrl = "http://train.qunar.com/dict/open/s2s.do?"+\
         "callback=jQuery172031843804203989556_1495894108865&"+\
         "dptStation=上海&arrStation=北京&date=2017-05-31&"+\
@@ -421,13 +421,13 @@ log3.close()
 #myutil.genUrl(stations,1,2,"2017-06-20")
 #myutil.updateMongo("addproperty")
 
-#'''
+'''
 #测试区结束
 
 
 
 #主程序————爬虫程序
-'''
+# '''
 
 testUrl = "http://train.qunar.com/dict/open/s2s.do?"+\
         "callback=jQuery172031843804203989556_1495894108865&"+\
@@ -435,7 +435,7 @@ testUrl = "http://train.qunar.com/dict/open/s2s.do?"+\
         "type=normal&user=neibu&source=site&start=1&num=500&sort=3"
 
 client = MongoClient()
-db = client.quna
+db = client.test
 myutil = mymod.myutil.myUtil(db)
 myutil.updateMongo("restart")
 lock = threading.Lock()
@@ -443,22 +443,38 @@ stableip = mymod.stableIP.StableIP()
 proxies = stableip.getIPs("ips.py")
 
 def callcraw(step, proxy, urlquery_step):
+    log4=open("log/iptest.log","a+")
     if stableip.singleTest(proxy,testUrl):
         craw(step, proxy, urlquery_step, 1)
+        log4.write("ip ok:"+str(proxy))
     else:
-        print("error")
+        log4.write('ip error:'+str(proxy))
+    log4.close()
 
-step = 1000
+step = 10
 urlquery = list(db.url.find({"status":"no"}).limit(step*len(proxies)))
 for i in range(0, step*len(proxies)):
     db.url.update({"url":urlquery[i]["url"]},{"$set":{"status":"ing"}},upsert=False, multi=False)
 count = 0
+global count11,count22
+count11=0
+count22=0
+log3=open("log/crawtesttime.log","a+")
+start_time=time.time()
+
 for proxy in proxies:
     count = count + 1
     start = (count - 1)*step
     end =(count)*step
     urlquery_step = urlquery[start:end]
-    threading.Thread(target = callcraw,args=([step,proxy,urlquery_step]),name = "name:"+str(count)).start()
+    t1=threading.Thread(target = callcraw,args=([step,proxy,urlquery_step]),name = "name:"+str(count))
+    t1.start()
+
+t1.join()
+log3.write('step='+str(step)+'\t'+'thread='+str(len(proxies))+'\n')
+log3.write('time='+str(time.time()-start_time)+'\n')
+log3.write('total len(200)='+str(count11)+'\t'+'len(503)='+str(count22)+'\n')
+log3.close()
 
 
 
